@@ -1,5 +1,5 @@
 unless defined?(TwitterSearchNRetweet_ConfigFilePath)
-  TwitterSearchNRetweet_ConfigFilePath = File.expand_path('../../config/twitter_search_n_retweet.yaml', __FILE__) 
+  TwitterSearchNRetweet_ConfigFilePath = File.expand_path('../test_config.yaml', __FILE__) 
 end
 ENV['TSNR_ENV'] ||= 'test'
 

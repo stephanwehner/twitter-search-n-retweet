@@ -1,2 +1,3 @@
+# Sample configuration file
 test:
   database: sqlite:///tmp/test.sqlite
