@@ -2,11 +2,29 @@ require 'yaml'
 
 module TwitterSearchNRetweet
   class Configuration
-    def initialize
-      @config = YAML.load(IO.read(TwitterSearchNRetweet_ConfigFilePath))[ENV['TSNR_ENV']]
+    
+
+    def development?; @env == 'development'; end
+    def test?; @env == 'test'; end
+    def production?; @env == 'production'; end
+
+    def datamapper_config
+     @config['database']
     end
-    def datamapper_path
-     @config['database'] # 'sqlite:///tmp/db.sqlite'
+
+    def twitter_config
+     @config['twitter']
+    end
+
+    def self.instance
+      @instance ||= self.new
+    end
+
+    private
+
+    def initialize
+      @env = ENV['TSNR_ENV'] || 'development'
+      @config = YAML.load(IO.read(TwitterSearchNRetweet_ConfigFilePath))[@env]
     end
   end
 end

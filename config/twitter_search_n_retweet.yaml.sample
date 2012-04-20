@@ -1,3 +1,8 @@
 # Sample configuration file
-test:
-  database: sqlite:///tmp/test.sqlite
+development:
+  database: sqlite:///tmp/dev.sqlite3
+  twitter:
+    consumer_key: XXXXXXXXXXXXXXXXXXXXX
+    consumer_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    oauth_token: XXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    oauth_token_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

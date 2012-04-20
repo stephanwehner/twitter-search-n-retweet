@@ -2,7 +2,8 @@ require File.expand_path('../test_helper', __FILE__)
 
 class SearchTest < MiniTest::Unit::TestCase
   def test_can_create
-    assert TwitterSearchNRetweet::Search.create(:query_string => 'q test')
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'q test')
+    assert search.save, search.errors.full_messages.inspect
     assert_equal 'q test', TwitterSearchNRetweet::Search.last.query_string
   end
 

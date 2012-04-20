@@ -1,2 +1,13 @@
 test:
   database: sqlite:///tmp/twsnr_test.sqlite
+  twitter:
+    consumer_key: 123456789012345678901
+    consumer_secret: 1234567890123456789123456789012345678901234
+    oauth_token: 170431648-1234567890123456789123456789012345678901
+    oauth_token_secret: 123456789012345678912345678901234567890123
+    search_terms:
+    - abc
+    - ghi
+    exclude_strings:
+    - def
+    - ceg
