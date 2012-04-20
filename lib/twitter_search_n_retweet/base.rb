@@ -1,11 +1,16 @@
-require 'dm-sqlite-adapter'
-require 'data_mapper'
+require 'bundler'
+Bundler.require
 
-%w( search ).each do |file|
+%w( configuration
+    search ).each do |file|
   require File.expand_path("../#{file}", __FILE__)
 end
 
-DataMapper.setup(:default, 'sqlite:///tmp/db.sqlite')
+# Set TwitterSearchNRetweet_ConfigFilePath 
+
+config = TwitterSearchNRetweet::Configuration.new
+
+DataMapper.setup(:default, config.datamapper_path)
 
 DataMapper.auto_migrate!
 DataMapper.finalize
