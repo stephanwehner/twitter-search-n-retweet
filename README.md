@@ -1,4 +1,4 @@
 twitter-search-n-retweet
 ========================
 
-Search twitter and retweet
+A ruby gem to search twitter and retweet.
