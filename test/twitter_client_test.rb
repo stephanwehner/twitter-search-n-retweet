@@ -27,7 +27,7 @@ class TwitterClientTest < MiniTest::Unit::TestCase
     tc = TwitterSearchNRetweet::TwitterClient.new
     tc.update_search('abc')
     assert_equal 1, TwitterSearchNRetweet::Search.count
-    assert_equal 'abc -rt', TwitterSearchNRetweet::Search.last.query_string
+    assert_equal 'abc', TwitterSearchNRetweet::Search.last.query_string
     assert_equal 2, TwitterSearchNRetweet::SearchResult.count
     assert_equal ['abc 123', 'ghi 456'], TwitterSearchNRetweet::SearchResult.all.collect { |sr| sr.text}.sort
   end
@@ -57,78 +57,106 @@ class TwitterClientTest < MiniTest::Unit::TestCase
     tc.update_searches
   end
 
-  def test_result_passes_criteria_empty
+  def test_good_empty
     tc = TwitterSearchNRetweet::TwitterClient.new
     
-    assert !tc.result_passes_criteria?(twitter_search_result :text => '')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => ' ')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => ' ' * 10)
-    assert !tc.result_passes_criteria?(twitter_search_result :text => "\n" * 10)
+    assert !tc.good?(twitter_search_result :text => '')
+    assert !tc.good?(twitter_search_result :text => ' ')
+    assert !tc.good?(twitter_search_result :text => ' ' * 10)
+    assert !tc.good?(twitter_search_result :text => "\n" * 10)
   end
 
-  def test_result_passes_criteria_at
+  def test_good_at
     tc = TwitterSearchNRetweet::TwitterClient.new
     
-    assert !tc.result_passes_criteria?(twitter_search_result :text => '@someone hello')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => ' @someone hello')
+    assert !tc.good?(twitter_search_result :text => '@someone hello')
+    assert !tc.good?(twitter_search_result :text => ' @someone hello')
 
-    assert tc.result_passes_criteria?(twitter_search_result :text => ' hello @someone')
-    assert tc.result_passes_criteria?(twitter_search_result :text => ' hello @someone else')
+    assert tc.good?(twitter_search_result :text => ' hello @someone')
+    assert tc.good?(twitter_search_result :text => ' hello @someone else')
   end
 
-  def test_result_passes_criteria_RT
+  def test_good_RT
     tc = TwitterSearchNRetweet::TwitterClient.new
 
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'RT for fun')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'RT @hello')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'hello RT @mike')
+    assert !tc.good?(twitter_search_result :text => 'RT for fun')
+    assert !tc.good?(twitter_search_result :text => 'RT @hello')
+    assert !tc.good?(twitter_search_result :text => 'hello RT @mike')
 
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'Hello and RTSY GUTSY')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'Hello and ARTSY')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'Hello and RT')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'RTY')
+    assert tc.good?(twitter_search_result :text => 'Hello and RTSY GUTSY')
+    assert tc.good?(twitter_search_result :text => 'Hello and ARTSY')
+    assert tc.good?(twitter_search_result :text => 'Hello and RT')
+    assert tc.good?(twitter_search_result :text => 'RTY')
   end
 
-  def test_result_passes_criteria_length
+  def test_good_length
     tc = TwitterSearchNRetweet::TwitterClient.new
 
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'x' * 121)
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'x')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'ab')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => '        ab')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'ab       ')
+    assert !tc.good?(twitter_search_result :text => 'x' * 121)
+    assert !tc.good?(twitter_search_result :text => 'x')
+    assert !tc.good?(twitter_search_result :text => 'ab')
+    assert !tc.good?(twitter_search_result :text => '        ab')
+    assert !tc.good?(twitter_search_result :text => 'ab       ')
 
-    assert tc.result_passes_criteria?(twitter_search_result :text => '1234')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'x' * 120)
+    assert tc.good?(twitter_search_result :text => '1234')
+    assert tc.good?(twitter_search_result :text => 'x' * 120)
   end
 
   # Pretty strict!
-  def test_result_passes_criteria_exclude_strings
+  def test_good_exclude_strings
     tc = TwitterSearchNRetweet::TwitterClient.new
 
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'abc def')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'abc Def')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'DeF abc')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'DeFwow')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'wowceG')
+    assert !tc.good?(twitter_search_result :text => 'abc def')
+    assert !tc.good?(twitter_search_result :text => 'abc Def')
+    assert !tc.good?(twitter_search_result :text => 'DeF abc')
+    assert !tc.good?(twitter_search_result :text => 'DeFwow')
+    assert !tc.good?(twitter_search_result :text => 'wowceG')
 
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'cG b')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'c ce')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'wow there is de')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'ef works')
+    assert tc.good?(twitter_search_result :text => 'cG b')
+    assert tc.good?(twitter_search_result :text => 'c ce')
+    assert tc.good?(twitter_search_result :text => 'wow there is de')
+    assert tc.good?(twitter_search_result :text => 'ef works')
   end
 
-  def test_result_passes_criteria_exclude_words
+  def test_good_exclude_words
     tc = TwitterSearchNRetweet::TwitterClient.new
 
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'bingo')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'Bingo')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'i like bingo')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'Go the bingo works')
-    assert !tc.result_passes_criteria?(twitter_search_result :text => 'NOW BINGO!')
+    assert !tc.good?(twitter_search_result :text => 'bingo')
+    assert !tc.good?(twitter_search_result :text => 'Bingo')
+    assert !tc.good?(twitter_search_result :text => 'i like bingo')
+    assert !tc.good?(twitter_search_result :text => 'Go the bingo works')
+    assert !tc.good?(twitter_search_result :text => 'NOW BINGO!')
 
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'green bingohall')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'going bingobingo')
-    assert tc.result_passes_criteria?(twitter_search_result :text => 'raining and ingobingoing')
+    assert tc.good?(twitter_search_result :text => 'green bingohall')
+    assert tc.good?(twitter_search_result :text => 'going bingobingo')
+    assert tc.good?(twitter_search_result :text => 'raining and ingobingoing')
+  end
+
+  def test_post_search_result_no_search
+    tc = TwitterSearchNRetweet::TwitterClient.new
+    assert_nil tc.post_search_result('no search') 
+  end
+
+  def test_post_search_result_no_search_results
+    tc = TwitterSearchNRetweet::TwitterClient.new
+    TwitterSearchNRetweet::Search.create(:query_string => 'has no results')
+    assert_nil tc.post_search_result('has no results') 
+  end
+
+  def test_post_search_result
+    tc = TwitterSearchNRetweet::TwitterClient.new
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'has a result')
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search))
+    TwitterSearchNRetweet::SearchResult.any_instance.expects(:post_retweet)
+    assert_equal search_result, tc.post_search_result('has a result') 
+  end
+
+  def test_post_search_result_already_retweeted
+    tc = TwitterSearchNRetweet::TwitterClient.new
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'has a result')
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search,
+                                                                                  :retweet_id => '1234'))
+    TwitterSearchNRetweet::SearchResult.any_instance.expects(:post_retweet).never
+    assert_nil tc.post_search_result('has a result') 
   end
 end

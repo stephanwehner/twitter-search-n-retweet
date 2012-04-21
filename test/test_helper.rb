@@ -26,8 +26,17 @@ class MiniTest::Unit::TestCase
                                     "to_user_id"=>nil,
                                     "to_user_id_str"=>nil,
                                     "to_user_name"=>nil}.freeze unless defined?(TWITTER_SEARCH_RESULT_TEMPLATE)
+  SEARCH_RESULT_TEMPLATE = {:from_user => '123456user',
+                            :from_user_id => '123456',
+                            :twitter_id => '1234567890',
+                            :text => 'test tweet'} unless defined?(SEARCH_RESULT_TEMPLATE)
+
   def twitter_search_result(options = {})
     OpenStruct.new(TWITTER_SEARCH_RESULT_TEMPLATE.merge(options))
+  end
+
+  def mock_search_result(options = {})
+    SEARCH_RESULT_TEMPLATE.merge(options)
   end
 
   def reset_database!

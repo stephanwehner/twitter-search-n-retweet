@@ -14,5 +14,19 @@ class SearchResultTest < MiniTest::Unit::TestCase
     assert_equal 'test tweet', TwitterSearchNRetweet::SearchResult.last.text
   end
 
+  def test_to_retweet
+    search_result = TwitterSearchNRetweet::SearchResult.new(:from_user => '123name', :text => 'big test tweet')
+    assert_equal 'RT @123name big test tweet -- GOOD ONE', search_result.to_retweet('GOOD ONE')
+    assert_equal 'RT @123name big test tweet', search_result.to_retweet('')
+  end
 
+
+  def test_post_retweet
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'abc')
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search, :from_user => '123name', :text => 'big test tweet'))
+    Twitter.expects(:update).returns(OpenStruct.new(:id => 987654321012345678))
+    assert_nil search_result.retweet_id
+    search_result.post_retweet('')
+    assert_equal 987654321012345678, search_result.retweet_id
+  end
 end

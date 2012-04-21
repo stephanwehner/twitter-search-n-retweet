@@ -18,12 +18,12 @@ module TwitterSearchNRetweet
     def min_tweet_length; @config['min_tweet_length'].to_i; end
 
     def search(query_string)
-      query_string << ' -rt' unless query_string =~ /\s-rt\s*$/
+      query_string = query_string + ' -rt' unless query_string =~ /\s-rt\s*$/
       Twitter.search(query_string, :rpp => 30, :include_entities => false, :lang => 'en', :result_type => 'recent')
     end
 
-    def result_passes_criteria?(result)
-      text = result.text
+    def good?(result)
+      text = result.text # not using anything else for now
       return false if text.nil?
       text.strip!
       return false if text.strip == ''
@@ -47,7 +47,8 @@ module TwitterSearchNRetweet
       return if results.length == 0
       search = TwitterSearchNRetweet::Search.new(:query_string => search_term)
       return unless search.valid? # logging ?
-      results.collect { |result| result if result_passes_criteria?(result) }.compact.each do |result|
+      results.each do |result|
+        next unless good?(result)
         search.search_results << SearchResult.new(:from_user => result.from_user,
                                                   :from_user_id => result.from_user_id_str,
                                                   :twitter_id => result.id_str,
@@ -59,6 +60,20 @@ module TwitterSearchNRetweet
     def update_searches
       search_terms.each do |search_term|
         update_search(search_term)
+      end
+    end
+
+    def post_search_result(search_term)
+      search_result = SearchResult.last(SearchResult.search.query_string => search_term, 
+                                        :retweet_id => nil)
+      return nil if search_result.nil?
+      search_result.post_retweet(retweet_ending)
+      search_result
+    end
+
+    def post_search_results
+      search_terms.each do |search_term|
+        post_search_result(search_term)
       end
     end
   end
