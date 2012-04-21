@@ -9,8 +9,13 @@ module TwitterSearchNRetweet
       end
     end
 
-    def exclude_strings; @config['exclude_strings']; end
+    def exclude_strings_strict; @config['exclude_strings_strict']; end
+    def exclude_words; @config['exclude_words']; end
     def search_terms; @config['search_terms']; end
+    def account_name; @config['account_name']; end
+    def retweet_ending; @config['retweet_ending']; end
+    def max_tweet_length; @config['max_tweet_length'].to_i; end
+    def min_tweet_length; @config['min_tweet_length'].to_i; end
 
     def search(query_string)
       query_string << ' -rt' unless query_string =~ /\s-rt\s*$/
@@ -18,8 +23,21 @@ module TwitterSearchNRetweet
     end
 
     def result_passes_criteria?(result)
-      exclude_strings.each do |exclude_string|
+      text = result.text
+      return false if text.nil?
+      text.strip!
+      return false if text.strip == ''
+      return false if text =~ /^\s*@/
+      return false if text =~ /^RT /
+      return false if text =~ / RT /
+      return false if text.length > max_tweet_length
+      return false if text.length < min_tweet_length
+      return false if text =~ /#{account_name}/
+      exclude_strings_strict.each do |exclude_string|
         return false if result.text =~ /#{exclude_string}/i
+      end
+      exclude_words.each do |word|
+        return false if result.text =~ /\b#{word}\b/i
       end
       true
     end

@@ -2,7 +2,20 @@
 development:
   database: sqlite:///tmp/dev.sqlite3
   twitter:
+    account_name: @twitter_name
+    max_tweet_length: 120
+    min_tweet_length: 3
+    retweet_ending: Bravo!
     consumer_key: XXXXXXXXXXXXXXXXXXXXX
     consumer_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     oauth_token: XXXXXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     oauth_token_secret: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    search_terms:
+    - abc
+    - ghi
+    exclude_words:
+    - bingo
+    - poker
+    exclude_strings_strict:
+    - def
+    - ceg
