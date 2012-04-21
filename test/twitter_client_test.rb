@@ -118,6 +118,23 @@ class TwitterClientTest < MiniTest::Unit::TestCase
     assert tc.good?(twitter_search_result :text => 'ef works')
   end
 
+  def test_good_exclude_strings_word_regexp
+    tc = TwitterSearchNRetweet::TwitterClient.new
+    assert !tc.good?(twitter_search_result :text => 'romabus')
+    assert !tc.good?(twitter_search_result :text => 'romebus')
+    assert tc.good?(twitter_search_result :text => 'romabuso')
+    assert tc.good?(twitter_search_result :text => 'Qromabuso came')
+    assert tc.good?(twitter_search_result :text => 'was a quackromebus')
+  end
+
+  def test_good_exclude_strings_strict_regexp
+    tc = TwitterSearchNRetweet::TwitterClient.new
+    assert !tc.good?(twitter_search_result :text => ' vaNcant b')
+    assert !tc.good?(twitter_search_result :text => 'a vaecAnt')
+    assert !tc.good?(twitter_search_result :text => 'vancanto')
+    assert tc.good?(twitter_search_result :text => 'BBvaLcant')
+  end
+
   def test_good_exclude_words
     tc = TwitterSearchNRetweet::TwitterClient.new
 
