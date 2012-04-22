@@ -11,5 +11,5 @@ end
 config = TwitterSearchNRetweet::Configuration.instance
 
 DataMapper.setup(:default, config.datamapper_config)
-DataMapper.auto_migrate!
+DataMapper.auto_upgrade!
 DataMapper.finalize
