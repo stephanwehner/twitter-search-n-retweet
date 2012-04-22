@@ -11,6 +11,7 @@ module TwitterSearchNRetweet
     property :twitter_id, String, :required => true, :unique => true
     property :text, String, :length => 255
 
+    property :retweet_user_id, String, :unique => true
     property :retweet_id , Integer
 
     belongs_to :search
@@ -21,9 +22,17 @@ module TwitterSearchNRetweet
       t
     end
 
+    # Successful if retweed_id set.
     def post_retweet(ending = '')
+      self.retweet_user_id = from_user_id
+      return unless valid?
       twitter_update = Twitter.update(to_retweet(ending), :in_reply_to_status_id => self.twitter_id)
-      self.update(:retweet_id => twitter_update.id)
+      self.retweet_id = twitter_update.id
+      self.save
+    end
+
+    def retweeted?
+      !self.retweet_id.nil?
     end
   end
 end

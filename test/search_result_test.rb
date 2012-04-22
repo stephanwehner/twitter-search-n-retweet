@@ -40,4 +40,21 @@ class SearchResultTest < MiniTest::Unit::TestCase
     Twitter.expects(:update).with('RT @123name big test tweet -- good one', :in_reply_to_status_id => '4567').returns(OpenStruct.new(:id => 1234567890))
     search_result.post_retweet('good one')
   end
+
+  def test_post_retweet_only_once_per_user
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'abc')
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search, :from_user => '123name', :text => 'big test tweet', :twitter_id => 4567, :from_user_id => '555512', :retweet_user_id => '555512'))
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search, :from_user => '123name', :text => 'another tweet', :from_user_id => '555512', :twitter_id => 4567))
+    Twitter.expects(:update).never
+    search_result.post_retweet('good one')
+    assert_nil search_result.retweet_id
+  end
+
+  def test_retweeted?
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'abc')
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search, :from_user => '123name', :text => 'big test tweet', :twitter_id => 4567, :from_user_id => '555512'))
+    assert !search_result.retweeted?
+    search_result.retweet_id = '12345'
+    assert search_result.retweeted?
+  end
 end
