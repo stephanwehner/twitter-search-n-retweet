@@ -47,12 +47,15 @@ module TwitterSearchNRetweet
       return if results.length == 0
       search = TwitterSearchNRetweet::Search.new(:query_string => search_term)
       return unless search.valid? # logging ?
+      search.save
       results.each do |result|
         next unless good?(result)
-        search.search_results << SearchResult.new(:from_user => result.from_user,
-                                                  :from_user_id => result.from_user_id_str,
-                                                  :twitter_id => result.id_str,
-                                                  :text => result.text)
+        search_result = SearchResult.new(:search => search,
+                                         :from_user => result.from_user,
+                                         :from_user_id => result.from_user_id,
+                                         :twitter_id => result.id,
+                                         :text => result.text)
+        search.search_results << search_result if search_result.valid?
       end
       search.save
     end

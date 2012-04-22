@@ -8,7 +8,7 @@ module TwitterSearchNRetweet
 
     property :from_user, String, :required => true
     property :from_user_id, String, :required => true
-    property :twitter_id, String, :required => true
+    property :twitter_id, String, :required => true, :unique => true
     property :text, String, :length => 255
 
     property :retweet_id , Integer
@@ -22,7 +22,7 @@ module TwitterSearchNRetweet
     end
 
     def post_retweet(ending = '')
-      twitter_update = Twitter.update(to_retweet(ending))
+      twitter_update = Twitter.update(to_retweet(ending), :in_reply_to_status_id => self.twitter_id)
       self.update(:retweet_id => twitter_update.id)
     end
   end

@@ -1,6 +1,10 @@
 require File.expand_path('../test_helper', __FILE__)
 
 class SearchResultTest < MiniTest::Unit::TestCase
+  def setup
+    reset_database!
+  end
+
   def test_can_create
     search = TwitterSearchNRetweet::Search.new(:query_string => 'abc')
     assert search.save, search.errors.full_messages.inspect
@@ -28,5 +32,12 @@ class SearchResultTest < MiniTest::Unit::TestCase
     assert_nil search_result.retweet_id
     search_result.post_retweet('')
     assert_equal 987654321012345678, search_result.retweet_id
+  end
+
+  def test_post_retweet_as_reply
+    search = TwitterSearchNRetweet::Search.create(:query_string => 'abc')
+    search_result = TwitterSearchNRetweet::SearchResult.create(mock_search_result(:search => search, :from_user => '123name', :text => 'big test tweet', :twitter_id => 4567))
+    Twitter.expects(:update).with('RT @123name big test tweet -- good one', :in_reply_to_status_id => '4567').returns(OpenStruct.new(:id => 1234567890))
+    search_result.post_retweet('good one')
   end
 end

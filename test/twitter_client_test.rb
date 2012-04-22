@@ -21,9 +21,9 @@ class TwitterClientTest < MiniTest::Unit::TestCase
   end
 
   def test_update_search
-    Twitter.expects(:search).returns([twitter_search_result(:text => 'abc 123'),
-                                      twitter_search_result(:text => 'abc def 345'),
-                                      twitter_search_result(:text => 'ghi 456')])
+    Twitter.expects(:search).returns([twitter_search_result(:text => 'abc 123', :id => 123),
+                                      twitter_search_result(:text => 'abc def 345', :id => 124),
+                                      twitter_search_result(:text => 'ghi 456', :id => 125)])
     tc = TwitterSearchNRetweet::TwitterClient.new
     tc.update_search('abc')
     assert_equal 1, TwitterSearchNRetweet::Search.count
